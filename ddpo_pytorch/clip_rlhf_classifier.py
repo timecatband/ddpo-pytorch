@@ -26,7 +26,8 @@ class CLIPRLHFClassifier(nn.Module):
 
         self.classifier = LinearClassifier(768)
         self.clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
-        self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")        self.classifier.load_state_dict(torch.load(weights))
+        self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")    
+        self.classifier.load_state_dict(torch.load(weights))
         self.classifier = self.classifier.to(self.device)
         self.classifier.eval()
         self.dtype = dtype
