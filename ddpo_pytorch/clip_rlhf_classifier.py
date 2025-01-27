@@ -24,7 +24,8 @@ class CLIPRLHFClassifier:
     def __init__(self, dtype, weights, clip_model="ViT-B/32"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.clip_model, self.preprocess = clip.load(clip_model, device=self.device)
-        self.classifier = torch.load(weights, weights_only=False)
+        self.classifier = LinearClassifier(512)
+        self.classifier.load_state_dict(torch.load(weights))
         self.classifier = self.classifier.to(self.device)
         self.classifier.eval()
         self.dtype = dtype
