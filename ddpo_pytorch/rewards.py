@@ -45,6 +45,20 @@ def aesthetic_score():
 
     return _fn
 
+def clip_rlhf_classifier():
+    from ddpo_pytorch.clip_rlhf_classifier import CLIPRLHFClassifier
+    scorer = CLIPRLHFClassifier(dtype=torch.float32, weights="ddpo_pytorch/assets/clip_rlhf_classifier.pth").cuda()
+    
+    def _fn(images, prompts, metadata):
+        if isinstance(images, torch.Tensor):
+            images = (images * 255).round().clamp(0, 255).to(torch.uint8)
+        else:
+            images = images.transpose(0, 3, 1, 2)
+            images = torch.tensor(images, dtype=torch.uint8)
+        scores = scorer(images)
+        return scores, {}
+    return _fn
+
 
 def llava_strict_satisfaction():
     """Submits images to LLaVA and computes a reward by matching the responses to ground truth answers directly without
