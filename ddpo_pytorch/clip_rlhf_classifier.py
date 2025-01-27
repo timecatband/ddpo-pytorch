@@ -24,7 +24,7 @@ class CLIPRLHFClassifier(nn.Module):
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.classifier = LinearClassifier(512)
+        self.classifier = LinearClassifier(768)
         self.clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
         self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")        self.classifier.load_state_dict(torch.load(weights))
         self.classifier = self.classifier.to(self.device)
