@@ -36,7 +36,7 @@ class CLIPRLHFClassifier(nn.Module):
         device = next(self.classifier.parameters()).device
        # inputs = self.preprocess(images).to(self.device)
         inputs = images
-        inputs = {k: v.to(self.dtype).to(device) for k, v in inputs.items()}
+        #inputs = {k: v.to(self.dtype).to(device) for k, v in inputs.items()}
         embed = self.clip_model.encode_image(inputs)
         outputs = self.classifier(embed)
         outputs = outputs.squeeze(1)
