@@ -20,8 +20,9 @@ class LinearClassifier(nn.Module):
         return self.net(embeddings)
 
 
-class CLIPRLHFClassifier:
+class CLIPRLHFClassifier(nn.Module):
     def __init__(self, dtype, weights, clip_model="ViT-B/32"):
+        super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.clip_model, self.preprocess = clip.load(clip_model, device=self.device)
         self.classifier = LinearClassifier(512)
