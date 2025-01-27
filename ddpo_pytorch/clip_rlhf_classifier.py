@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
 
-import clip
-
+from transformers import CLIPProcessor, CLIPModel
 
 # Model Definition
 class LinearClassifier(nn.Module):
@@ -24,20 +23,20 @@ class CLIPRLHFClassifier(nn.Module):
     def __init__(self, dtype, weights, clip_model="ViT-B/32"):
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.clip_model, self.preprocess = clip.load(clip_model, device=self.device)
+
         self.classifier = LinearClassifier(512)
-        self.classifier.load_state_dict(torch.load(weights))
+        self.clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
+        self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")        self.classifier.load_state_dict(torch.load(weights))
         self.classifier = self.classifier.to(self.device)
         self.classifier.eval()
         self.dtype = dtype
     
     @torch.no_grad()
     def __call__(self, images):
-        device = next(self.classifier.parameters()).device
-       # inputs = self.preprocess(images).to(self.device)
-        inputs = images
-        #inputs = {k: v.to(self.dtype).to(device) for k, v in inputs.items()}
-        embed = self.clip_model.encode_image(inputs)
+        device = next(self.parameters()).device
+        inputs = self.processor(images=images, return_tensors="pt")
+        inputs = {k: v.to(self.dtype).to(device) for k, v in inputs.items()}
+        embed = self.clip.get_image_features(**inputs)
         outputs = self.classifier(embed)
         outputs = outputs.squeeze(1)
         scores = outputs[:, 1] - outputs[:, 0]
